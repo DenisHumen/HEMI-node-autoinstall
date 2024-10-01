@@ -79,10 +79,12 @@ find_gray_ip() {
 }
 
 
+
 insert_into_database() {
-    EXISTS=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -sse "SELECT COUNT(*) FROM $TABLE_NAME WHERE name='$MACHINE_NAME';")
+    EXISTS=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -sse "SELECT COUNT(*) FROM $TABLE_NAME WHERE private_key='$PRIVATE_KEY';")
+    
     if [[ "$EXISTS" -gt 0 ]]; then
-        echo "Запись с именем '$MACHINE_NAME' уже существует в базе данных. Данные не будут добавлены."
+        echo "Запись с приватным ключом '$PRIVATE_KEY' уже существует в базе данных. Данные не будут добавлены."
         exit 0
     fi
 
@@ -97,6 +99,8 @@ EOF
         echo "Произошла ошибка при добавлении данных в базу данных."
     fi
 }
+
+
 
 update_bashrc() {
     echo "export POPM_BTC_PRIVKEY='$PRIVATE_KEY'" >> ~/.bashrc
@@ -140,8 +144,8 @@ manage_service() {
 }
 
 main() {
-    check_internet
     find_gray_ip
+    check_internet
     check_json_file
     install_dependencies
     download_and_extract
@@ -156,9 +160,5 @@ main() {
     echo -e "\033[32m    Для проверки статуса сервиса: service popmd status\033[0m"
     echo -e "\033[32m    Для проверки логов journalctl -f\033[0m"
 }
-
-
-main
-
 
 main
