@@ -63,6 +63,22 @@ extract_json_data() {
     PUBKEY_HASH=$(jq -r '.pubkey_hash' "$JSON_FILE")
 }
 
+find_gray_ip() {
+    echo "Поиск серого IP-адреса..."
+
+    # Ищем IP-адрес в диапазонах частных сетей (серый IP)
+    GRAY_IP=$(ip -4 -o addr show scope global | awk '/inet 10\.|inet 172\.[1-3][6-9]\.|inet 192\.168\./ {print $4}' | cut -d/ -f1)
+
+    if [[ -z "$GRAY_IP" ]]; then
+        echo "Серый IP не найден."
+        return 1
+    else
+        echo "Серый IP-адрес найден: $GRAY_IP"
+        return 0
+    fi
+}
+
+
 insert_into_database() {
     EXISTS=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -sse "SELECT COUNT(*) FROM $TABLE_NAME WHERE name='$MACHINE_NAME';")
     if [[ "$EXISTS" -gt 0 ]]; then
@@ -71,8 +87,8 @@ insert_into_database() {
     fi
 
     mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
-INSERT INTO $TABLE_NAME (name, ethereum_address, private_key, public_key, pubkey_hash)
-VALUES ('$MACHINE_NAME', '$ETH_ADDRESS', '$PRIVATE_KEY', '$PUBLIC_KEY', '$PUBKEY_HASH');
+INSERT INTO $TABLE_NAME (name, ethereum_address, private_key, public_key, pubkey_hash, gray_ip)
+VALUES ('$MACHINE_NAME', '$ETH_ADDRESS', '$PRIVATE_KEY', '$PUBLIC_KEY', '$PUBKEY_HASH', '$GRAY_IP');
 EOF
 
     if [[ $? -eq 0 ]]; then
@@ -125,6 +141,7 @@ manage_service() {
 
 main() {
     check_internet
+    find_gray_ip
     check_json_file
     install_dependencies
     download_and_extract
@@ -139,6 +156,9 @@ main() {
     echo -e "\033[32m    Для проверки статуса сервиса: service popmd status\033[0m"
     echo -e "\033[32m    Для проверки логов journalctl -f\033[0m"
 }
+
+
+main
 
 
 main
