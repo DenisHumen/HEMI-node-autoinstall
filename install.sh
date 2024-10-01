@@ -74,6 +74,19 @@ find_gray_ip() {
         return 1
     else
         echo "Серый IP-адрес найден: $GRAY_IP"
+
+        # Записываем серый IP-адрес в базу данных
+        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+UPDATE $TABLE_NAME SET gray_ip='$GRAY_IP' WHERE private_key='$PRIVATE_KEY';
+EOF
+
+        # Проверяем результат выполнения команды
+        if [[ $? -eq 0 ]]; then
+            echo "Серый IP-адрес успешно записан в базу данных."
+        else
+            echo "Произошла ошибка при записи серого IP-адреса в базу данных."
+        fi
+
         return 0
     fi
 }
@@ -89,16 +102,18 @@ insert_into_database() {
     fi
 
     mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
-INSERT INTO $TABLE_NAME (name, ethereum_address, private_key, public_key, pubkey_hash, gray_ip)
-VALUES ('$MACHINE_NAME', '$ETH_ADDRESS', '$PRIVATE_KEY', '$PUBLIC_KEY', '$PUBKEY_HASH', '$GRAY_IP');
+INSERT INTO $TABLE_NAME (name, ethereum_address, private_key, public_key, pubkey_hash)
+VALUES ('$MACHINE_NAME', '$ETH_ADDRESS', '$PRIVATE_KEY', '$PUBLIC_KEY', '$PUBKEY_HASH');
 EOF
 
+    # Проверяем результат выполнения команды
     if [[ $? -eq 0 ]]; then
         echo "Данные успешно добавлены в базу данных."
     else
         echo "Произошла ошибка при добавлении данных в базу данных."
     fi
 }
+
 
 
 
