@@ -33,6 +33,8 @@ install_dependencies() {
 check_json_file() {
     if [ -f "$FILE_PATH" ]; then
         echo "Файл $FILE_PATH уже существует. Скрипт завершает выполнение."
+        extract_json_data
+        find_gray_ip
         exit 0
     fi
 }
