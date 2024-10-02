@@ -3,8 +3,8 @@
 FILE_PATH="$HOME/popm-address.json"
 JSON_FILE="$HOME/popm-address.json"
 DB_HOST="ADRESS MYSQL"
-DB_USER="USER"
-DB_PASS="PASSWORD"
+DB_USER="user"
+DB_PASS="FbO2O(xQGlbwYEPr"
 DB_NAME="DATA"
 TABLE_NAME="HEMI"
 MACHINE_NAME=$(cat /etc/hostname)
