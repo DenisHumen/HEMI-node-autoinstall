@@ -77,16 +77,24 @@ find_gray_ip() {
     else
         echo "Серый IP-адрес найден: $GRAY_IP"
 
-        # Записываем серый IP-адрес в базу данных
-        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
-UPDATE $TABLE_NAME SET gray_ip='$GRAY_IP' WHERE private_key='$PRIVATE_KEY';
+        # Проверка на наличие записи с найденным серым IP-адресом
+        EXISTING_RECORD=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -se "SELECT COUNT(*) FROM $TABLE_NAME WHERE gray_ip='$GRAY_IP';")
+
+        if [[ "$EXISTING_RECORD" -eq 0 ]]; then
+            # Если записи нет, создаем новую запись с именем системы и серым IP
+            MACHINE_NAME=$(cat /etc/hostname)
+            mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+INSERT INTO $TABLE_NAME (name, gray_ip) VALUES ('$MACHINE_NAME', '$GRAY_IP');
 EOF
 
-        # Проверяем результат выполнения команды
-        if [[ $? -eq 0 ]]; then
-            echo "Серый IP-адрес успешно записан в базу данных."
+            # Проверяем результат выполнения команды
+            if [[ $? -eq 0 ]]; then
+                echo "Новая запись успешно добавлена в базу данных."
+            else
+                echo "Произошла ошибка при добавлении новой записи в базу данных."
+            fi
         else
-            echo "Произошла ошибка при записи серого IP-адреса в базу данных."
+            echo "Запись с серым IP-адресом уже существует в базе данных."
         fi
 
         return 0
@@ -95,26 +103,40 @@ EOF
 
 
 
-insert_into_database() {
-    EXISTS=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -sse "SELECT COUNT(*) FROM $TABLE_NAME WHERE private_key='$PRIVATE_KEY';")
-    
-    if [[ "$EXISTS" -gt 0 ]]; then
-        echo "Запись с приватным ключом '$PRIVATE_KEY' уже существует в базе данных. Данные не будут добавлены."
-        exit 0
-    fi
 
-    mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+insert_into_database() {
+    EXISTS=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -sse "SELECT COUNT(*) FROM $TABLE_NAME WHERE name='$MACHINE_NAME';")
+
+    if [[ "$EXISTS" -gt 0 ]]; then
+        echo "Запись с именем '$MACHINE_NAME' уже существует. Обновление данных."
+
+        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+UPDATE $TABLE_NAME 
+SET ethereum_address='$ETH_ADDRESS', private_key='$PRIVATE_KEY', public_key='$PUBLIC_KEY', pubkey_hash='$PUBKEY_HASH' 
+WHERE name='$MACHINE_NAME';
+EOF
+
+        if [[ $? -eq 0 ]]; then
+            echo "Данные успешно обновлены в базе данных."
+        else
+            echo "Произошла ошибка при обновлении данных в базе данных."
+        fi
+    else
+        echo "Запись с именем '$MACHINE_NAME' не найдена. Добавление новой записи."
+
+        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
 INSERT INTO $TABLE_NAME (name, ethereum_address, private_key, public_key, pubkey_hash)
 VALUES ('$MACHINE_NAME', '$ETH_ADDRESS', '$PRIVATE_KEY', '$PUBLIC_KEY', '$PUBKEY_HASH');
 EOF
 
-    # Проверяем результат выполнения команды
-    if [[ $? -eq 0 ]]; then
-        echo "Данные успешно добавлены в базу данных."
-    else
-        echo "Произошла ошибка при добавлении данных в базу данных."
+        if [[ $? -eq 0 ]]; then
+            echo "Данные успешно добавлены в базу данных."
+        else
+            echo "Произошла ошибка при добавлении данных в базу данных."
+        fi
     fi
 }
+
 
 
 
