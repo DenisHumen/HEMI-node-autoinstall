@@ -159,13 +159,13 @@ manage_service() {
 }
 
 main() {
-    find_gray_ip
     check_internet
     check_json_file
     install_dependencies
     download_and_extract
     generate_keys
     extract_json_data
+    find_gray_ip
     update_bashrc
     create_service
     manage_service
