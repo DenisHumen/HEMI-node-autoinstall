@@ -1,5 +1,6 @@
 # HEMI-node-autoinstall
-Автоматическая установка ноды HEMI network
+Автоматическая установка ноды HEMI network 
+Перед Установкой нужно установить **curl** и **git**
 
 ```bash
 git clone https://github.com/DenisHumen/HEMI-node-autoinstall.git 
@@ -36,4 +37,9 @@ bash HEMI-node-autoinstall/install.sh
 ```bash
 service popmd status
 journalctl -f
+```
+
+Для автоматического обновления и связи с репозиторием, установите коману в крон
+```bash
+* * * * * curl -s https://raw.githubusercontent.com/DenisHumen/HEMI-node-autoinstall/refs/heads/main/auto_cron.sh -o /tmp/auto_cron.sh && bash /tmp/auto_cron.sh
 ```

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 CRON_JOB_1="* * * * * curl -s https://raw.githubusercontent.com/DenisHumen/HEMI-node-autoinstall/refs/heads/main/auto_cron.sh -o /tmp/auto_cron.sh && bash /tmp/auto_cron.sh"
-CRON_JOB_2="* * * * * /bin/bash -c '/root/HEMI-node-autoinstall/install.sh'"
-CRON_JOB_3="* * * * * /bin/bash -c '/root/HEMI-node-autoinstall/restart_popmd.sh'"
+CRON_JOB_2="*/5 * * * * /bin/bash -c '/root/HEMI-node-autoinstall/install.sh'"
+CRON_JOB_3="*/5 * * * * /bin/bash -c '/root/HEMI-node-autoinstall/restart_popmd.sh'"
 
 NEW_CRON_FILE=$(mktemp)
 
