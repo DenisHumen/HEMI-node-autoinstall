@@ -2,7 +2,7 @@
 
 FILE_PATH="$HOME/popm-address.json"
 JSON_FILE="$HOME/popm-address.json"
-DB_HOST="ADRESS MYSQL"
+DB_HOST="10.19.245.150"
 DB_USER="user"
 DB_PASS="FbO2O(xQGlbwYEPr"
 DB_NAME="DATA"
