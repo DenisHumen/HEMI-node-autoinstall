@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Задаем CRON
 CRON_JOB_1="* * * * * curl -s https://raw.githubusercontent.com/DenisHumen/HEMI-node-autoinstall/refs/heads/main/auto_cron.sh -o /tmp/auto_cron.sh && bash /tmp/auto_cron.sh"
 CRON_JOB_2="* * * * * /bin/bash -c '/root/HEMI-node-autoinstall/install.sh'"
 CRON_JOB_3="*/5 * * * * /bin/bash -c '/root/HEMI-node-autoinstall/restart_popmd.sh'"
@@ -23,9 +24,18 @@ fi
 
 rm "$NEW_CRON_FILE" "$CURRENT_CRON_FILE"
 
-/usr/bin/git clone https://github.com/DenisHumen/HEMI-node-autoinstall.git
-chmod 777 HEMI-node-autoinstall/*
-cd /root/HEMI-node-autoinstall/
-/usr/bin/git pull
+# Клонируем репозиторий
+REPO_DIR="/root/HEMI-node-autoinstall"
+
+if [ ! -d "$REPO_DIR" ]; then
+    /usr/bin/git clone https://github.com/DenisHumen/HEMI-node-autoinstall.git "$REPO_DIR"
+else
+    echo "Директория $REPO_DIR уже существует. Обновляем репозиторий..."
+    cd "$REPO_DIR" || exit 1
+    /usr/bin/git pull
+fi
+
+# Устанавливаем права 777
+chmod -R 777 "$REPO_DIR/*"
 
 echo "Скрипты обновлены."
