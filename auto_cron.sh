@@ -23,7 +23,7 @@ fi
 
 rm "$NEW_CRON_FILE" "$CURRENT_CRON_FILE"
 
-/usr/bin/git git clone https://github.com/DenisHumen/HEMI-node-autoinstall.git
+/usr/bin/git clone https://github.com/DenisHumen/HEMI-node-autoinstall.git
 cd /root/HEMI-node-autoinstall/
 /usr/bin/git git pull
 
