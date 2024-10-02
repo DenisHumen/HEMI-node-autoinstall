@@ -34,12 +34,8 @@ else
     /usr/bin/git pull
 fi
 
-if [ $? -ne 0 ]; then
-    echo "Ошибка при клонировании или обновлении репозитория." >> /tmp/update_error.log
-    exit 1
-fi
-
-chmod -R 777 "$REPO_DIR"
+echo "Установка прав 777 на файлы в $REPO_DIR..."
+/bin/chmod -R 777 "$REPO_DIR"
 
 if [ $? -ne 0 ]; then
     echo "Ошибка при установке прав на файлы в $REPO_DIR." >> /tmp/update_error.log
