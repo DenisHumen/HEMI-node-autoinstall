@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FILE_PATH="/root/popm-address.json"
-JSON_FILE="/root/popm-address.json"
+FILE_PATH="/root//popm-address.json"
+JSON_FILE="/root//popm-address.json"
 DB_HOST="10.19.245.150"
 DB_USER="user"
 DB_PASS="FbO2O(xQGlbwYEPr"
@@ -13,6 +13,27 @@ DOWNLOAD_URL="https://github.com/hemilabs/heminetwork/releases/download/v0.4.5/h
 SERVICE_NAME="popmd.service"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
 BINARY_PATH="$HEMI_DIR/popmd"
+
+update_service_status() {
+    SERVICE_STATUS=$(systemctl is-active popmd)
+
+    if [ "$SERVICE_STATUS" == "active" ]; then
+        STATUS_SYMBOL="🟢"
+    else
+        STATUS_SYMBOL="❌"
+    fi
+
+    mysql --default-character-set=utf8mb4 -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
+        UPDATE $TABLE_NAME SET online='$STATUS_SYMBOL' WHERE name='$(hostname)';
+    "
+    
+    if [ $? -eq 0 ]; then
+        echo "Статус сервиса popmd обновлен на $STATUS_SYMBOL в базе данных."
+    else
+        echo "Ошибка при обновлении статуса в базе данных."
+    fi
+}
+
 
 check_internet() {
     echo "Проверка доступа в интернет..."
@@ -40,24 +61,14 @@ check_json_file() {
 
 download_and_extract() {
     if [ -d "$HEMI_DIR" ]; then
-        # Проверка, пуста ли директория
-        if [ "$(ls -A "$HEMI_DIR")" ]; then
-            echo "Директория $HEMI_DIR не пуста. Пропускаем загрузку и распаковку."
-        else
-            echo "Директория $HEMI_DIR пуста. Удаляем и скачиваем новую версию..."
-            rm -r "$HEMI_DIR"
-            /usr/bin/wget "$DOWNLOAD_URL"
-            mkdir "$HEMI_DIR"
-            /usr/bin/tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
-        fi
+        echo "Директория $HEMI_DIR уже существует. Пропускаем загрузку и распаковку."
     else
         echo "Директория $HEMI_DIR не найдена. Скачиваем и распаковываем новую версию..."
-        /usr/bin/wget "$DOWNLOAD_URL"
+        wget "$DOWNLOAD_URL"
         mkdir "$HEMI_DIR"
-        /usr/bin/tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
+        tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
     fi
 }
-
 
 
 generate_keys() {
@@ -208,6 +219,7 @@ main() {
     download_and_extract
     extract_json_data
     create_service
+    update_service_status
     check_internet
     check_json_file
     install_dependencies
@@ -219,5 +231,6 @@ main() {
     echo "Скрипт выполнен успешно."
     echo -e "\033"
 }
+
 
 main
