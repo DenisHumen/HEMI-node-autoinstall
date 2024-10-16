@@ -40,14 +40,24 @@ check_json_file() {
 
 download_and_extract() {
     if [ -d "$HEMI_DIR" ]; then
-        echo "Директория $HEMI_DIR уже существует. Пропускаем загрузку и распаковку."
+        # Проверка, пуста ли директория
+        if [ "$(ls -A "$HEMI_DIR")" ]; then
+            echo "Директория $HEMI_DIR не пуста. Пропускаем загрузку и распаковку."
+        else
+            echo "Директория $HEMI_DIR пуста. Удаляем и скачиваем новую версию..."
+            rm -r "$HEMI_DIR"
+            /usr/bin/wget "$DOWNLOAD_URL"
+            mkdir "$HEMI_DIR"
+            /usr/bin/tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
+        fi
     else
         echo "Директория $HEMI_DIR не найдена. Скачиваем и распаковываем новую версию..."
-        wget "$DOWNLOAD_URL"
+        /usr/bin/wget "$DOWNLOAD_URL"
         mkdir "$HEMI_DIR"
         /usr/bin/tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
     fi
 }
+
 
 
 generate_keys() {
