@@ -45,7 +45,7 @@ download_and_extract() {
         echo "Директория $HEMI_DIR не найдена. Скачиваем и распаковываем новую версию..."
         wget "$DOWNLOAD_URL"
         mkdir "$HEMI_DIR"
-        tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
+        /usr/bin/tar --strip-components=1 -xzvf $(basename "$DOWNLOAD_URL") -C "$HEMI_DIR"
     fi
 }
 
