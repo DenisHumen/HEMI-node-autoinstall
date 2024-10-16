@@ -31,6 +31,7 @@ if [ ! -d "$REPO_DIR" ]; then
 else
     echo "Директория $REPO_DIR уже существует. Обновляем репозиторий..."
     cd "$REPO_DIR" || { echo "Не удалось перейти в директорию $REPO_DIR"; exit 1; }
+    /usr/bin/git reset --hard
     /usr/bin/git pull
 fi
 
