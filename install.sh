@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FILE_PATH="/root//popm-address.json"
-JSON_FILE="/root//popm-address.json"
+FILE_PATH="/root/popm-address.json"
+JSON_FILE="/root/popm-address.json"
 DB_HOST="10.19.245.150"
 DB_USER="user"
 DB_PASS="FbO2O(xQGlbwYEPr"
