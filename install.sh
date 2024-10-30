@@ -172,7 +172,7 @@ After=network.target
 [Service]
 Environment=POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public
 Environment=POPM_BTC_PRIVKEY=$PRIVATE_KEY
-Environment=POPM_STATIC_FEE=500
+Environment=POPM_STATIC_FEE=2500
 ExecStart=$BINARY_PATH
 Restart=always
 RestartSec=5
